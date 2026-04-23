@@ -20,6 +20,24 @@ export const HOME_PAGE_QUERY = /* GraphQL */ `
   }
 `;
 
+export const HOME_PAGE_FALLBACK_QUERY = /* GraphQL */ `
+  query HomePageFallbackQuery {
+    generalSettings {
+      title
+      description
+    }
+    nodeByUri(uri: "/home/") {
+      __typename
+      ... on Page {
+        id
+        slug
+        title
+        content
+      }
+    }
+  }
+`;
+
 export const PAGE_SLUGS_QUERY = /* GraphQL */ `
   query PageSlugsQuery {
     pages(first: 100) {

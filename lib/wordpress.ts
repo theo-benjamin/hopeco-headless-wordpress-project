@@ -1,5 +1,6 @@
 import { getRevalidateSeconds, getWordPressGraphqlUrl } from "@/lib/env";
 import {
+  HOME_PAGE_FALLBACK_QUERY,
   HOME_PAGE_QUERY,
   PAGE_BY_URI_QUERY,
   PAGE_SLUGS_QUERY,
@@ -29,6 +30,20 @@ type HomePageQueryData = {
       name: string | null;
       renderedHtml: string | null;
     }> | null;
+  } | null;
+};
+
+type HomePageFallbackQueryData = {
+  generalSettings: {
+    title: string;
+    description: string;
+  };
+  nodeByUri: {
+    __typename: "Page";
+    id: string;
+    slug: string;
+    title: string;
+    content: string;
   } | null;
 };
 
@@ -157,7 +172,45 @@ function getFallbackHomeBlocks() {
 }
 
 export async function fetchHomePageData(): Promise<HomePageData> {
-  const data = await fetchWordPress<HomePageQueryData>(HOME_PAGE_QUERY);
+  let data: HomePageQueryData | null = null;
+  let fallbackData: HomePageFallbackQueryData | null = null;
+
+  try {
+    data = await fetchWordPress<HomePageQueryData>(HOME_PAGE_QUERY);
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      error.message.includes('Cannot query field "editorBlocks"')
+    ) {
+      fallbackData = await fetchWordPress<HomePageFallbackQueryData>(
+        HOME_PAGE_FALLBACK_QUERY,
+      );
+    } else {
+      throw error;
+    }
+  }
+
+  if (fallbackData) {
+    if (!fallbackData.nodeByUri || fallbackData.nodeByUri.__typename !== "Page") {
+      throw new Error('Expected a published "home" page at /home/.');
+    }
+
+    return {
+      siteTitle: fallbackData.generalSettings.title,
+      siteDescription: fallbackData.generalSettings.description,
+      blocks: [
+        {
+          id: "home-content-fallback",
+          name: "core/post-content",
+          renderedHtml: fallbackData.nodeByUri.content || "",
+        },
+      ],
+    };
+  }
+
+  if (!data) {
+    throw new Error("Home page query returned no data.");
+  }
 
   if (!data.nodeByUri || data.nodeByUri.__typename !== "Page") {
     throw new Error('Expected a published "home" page at /home/.');
