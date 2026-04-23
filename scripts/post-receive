@@ -1,0 +1,102 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+# Bare-repo post-receive hook for deploying this project after `git push`.
+#
+# Expected usage:
+# 1. Copy this file into the bare repo as `hooks/post-receive`
+# 2. Adjust the config block below for your server
+# 3. Push the configured branch to the bare repo
+#
+# This hook:
+# - deploys the pushed branch into a separate work tree
+# - installs Node dependencies
+# - builds the Next.js frontend
+# - ensures the WordPress/MySQL containers are running
+# - optionally restarts the frontend process via a custom command
+
+BRANCH_TO_DEPLOY="${BRANCH_TO_DEPLOY:-main}"
+DEPLOY_DIR="${DEPLOY_DIR:-/var/www/hopeco}"
+NODE_ENV="${NODE_ENV:-production}"
+NPM_BIN="${NPM_BIN:-npm}"
+RESTART_CMD="${RESTART_CMD:-}"
+
+GIT_DIR="$(pwd)"
+LOG_PREFIX="[post-receive]"
+
+log() {
+  printf "%s %s\n" "$LOG_PREFIX" "$*"
+}
+
+fail() {
+  log "ERROR: $*"
+  exit 1
+}
+
+run_in_deploy_dir() {
+  (
+    cd "$DEPLOY_DIR"
+    "$@"
+  )
+}
+
+ensure_worktree() {
+  mkdir -p "$DEPLOY_DIR"
+  git --work-tree="$DEPLOY_DIR" --git-dir="$GIT_DIR" checkout -f "$BRANCH_TO_DEPLOY"
+}
+
+install_dependencies() {
+  if [[ -f "$DEPLOY_DIR/package-lock.json" ]]; then
+    run_in_deploy_dir env NODE_ENV="$NODE_ENV" "$NPM_BIN" ci
+  else
+    run_in_deploy_dir env NODE_ENV="$NODE_ENV" "$NPM_BIN" install
+  fi
+}
+
+build_frontend() {
+  run_in_deploy_dir env NODE_ENV="$NODE_ENV" "$NPM_BIN" run build
+}
+
+ensure_wordpress_stack() {
+  if [[ -f "$DEPLOY_DIR/docker-compose.yml" ]]; then
+    run_in_deploy_dir docker compose up -d mysql wordpress
+  fi
+}
+
+restart_frontend() {
+  if [[ -z "$RESTART_CMD" ]]; then
+    log "No RESTART_CMD configured; skipping frontend restart."
+    return
+  fi
+
+  run_in_deploy_dir bash -lc "$RESTART_CMD"
+}
+
+deploy() {
+  local oldrev="$1"
+  local newrev="$2"
+  local refname="$3"
+
+  if [[ "$refname" != "refs/heads/$BRANCH_TO_DEPLOY" ]]; then
+    log "Ignoring push to ${refname}; waiting for refs/heads/${BRANCH_TO_DEPLOY}."
+    return
+  fi
+
+  if [[ "$newrev" == "0000000000000000000000000000000000000000" ]]; then
+    log "Branch ${BRANCH_TO_DEPLOY} was deleted; refusing to deploy deletion."
+    return
+  fi
+
+  log "Deploying ${refname} to ${DEPLOY_DIR}"
+  ensure_worktree
+  install_dependencies
+  build_frontend
+  ensure_wordpress_stack
+  restart_frontend
+  log "Deployment complete."
+}
+
+while read -r oldrev newrev refname; do
+  deploy "$oldrev" "$newrev" "$refname"
+done
