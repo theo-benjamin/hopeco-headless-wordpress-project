@@ -15,7 +15,7 @@ source .env.wordpress
 set +a
 
 run_wp() {
-  docker compose run --rm wpcli "$@"
+  docker compose --env-file .env.wordpress run --rm wpcli "$@"
 }
 
 wait_for_wordpress() {
@@ -258,7 +258,7 @@ seed_content() {
 }
 
 echo "Starting Docker services..."
-docker compose up -d mysql wordpress
+docker compose --env-file .env.wordpress up -d mysql wordpress
 
 wait_for_wordpress
 ensure_wordpress

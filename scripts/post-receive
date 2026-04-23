@@ -90,10 +90,20 @@ build_frontend() {
 
 ensure_wordpress_stack() {
   if [ -f "$DEPLOY_DIR/docker-compose.yml" ]; then
-    load_env_file "$DEPLOY_DIR/.env.wordpress"
-    run_in_deploy_dir docker compose up -d mysql wordpress ||
+    run_in_deploy_dir docker compose --env-file .env.wordpress up -d mysql wordpress ||
       fail "docker compose up failed."
   fi
+}
+
+bootstrap_wordpress() {
+  if [ ! -f "$DEPLOY_DIR/scripts/bootstrap-wordpress.sh" ]; then
+    return
+  fi
+
+  command -v bash >/dev/null 2>&1 || fail "bash is required for scripts/bootstrap-wordpress.sh"
+
+  run_in_deploy_dir bash scripts/bootstrap-wordpress.sh ||
+    fail "WordPress bootstrap failed."
 }
 
 wait_for_graphql() {
@@ -160,6 +170,7 @@ deploy() {
   require_runtime
   install_dependencies
   ensure_wordpress_stack
+  bootstrap_wordpress
   wait_for_graphql
   build_frontend
   restart_frontend

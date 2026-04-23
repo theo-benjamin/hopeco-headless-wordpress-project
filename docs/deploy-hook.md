@@ -43,9 +43,10 @@ On pushes to the configured branch, the hook:
 2. removes untracked files from previous deploys while preserving `.env.local` and `.env.wordpress`
 3. runs `npm ci` when `package-lock.json` exists, otherwise `npm install`
 4. starts `mysql` and `wordpress` with `docker compose up -d`
-5. waits for `WORDPRESS_GRAPHQL_URL` from `.env.local` to return HTTP `200`
-6. runs `npm run build`
-7. runs `RESTART_CMD` if configured
+5. runs `scripts/bootstrap-wordpress.sh` when present to install WordPress and activate `WPGraphQL`/ACF
+6. waits for `WORDPRESS_GRAPHQL_URL` from `.env.local` to return HTTP `200`
+7. runs `npm run build`
+8. runs `RESTART_CMD` if configured
 
 ## Notes
 
@@ -56,4 +57,7 @@ On pushes to the configured branch, the hook:
 - The work tree is cleaned on each deploy so stale files from older apps do not get picked up by `next build`.
 - `.env.local` on the server must define `WORDPRESS_GRAPHQL_URL` for the GraphQL readiness check and the Next.js build.
 - `.env.wordpress` on the server must exist before deploy so Docker Compose can start MySQL and WordPress with the expected credentials.
+- The deployment scripts call `docker compose --env-file .env.wordpress ...` so Compose interpolation uses the same file as the containers.
+- The bootstrap script is idempotent, so the hook can run it on every deploy to keep WordPress core/plugins initialized.
 - If the server already uses port `8080`, set `WORDPRESS_HOST_PORT` in `.env.wordpress` to a free port and update `.env.local` so `WORDPRESS_GRAPHQL_URL` matches it.
+- If the site is behind Cloudflare, use `Full` or `Full (strict)` SSL mode, not `Flexible`, or you can get HTTPS redirect loops.
