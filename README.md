@@ -55,7 +55,7 @@ Default WordPress admin credentials come from `.env.wordpress`:
 
 The bootstrap script installs WordPress, activates the required plugins, sets permalinks, and creates:
 
-- a `home` front page with section-based ACF fields matching the Editorial Advocate wireframe
+- a `home` front page with section-based ACF fields matching the HopeCo==ci wireframe
 - an `about` page with starter ACF hero fields
 - two seeded update posts for the homepage feed
 
