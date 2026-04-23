@@ -7,6 +7,7 @@ DEPLOY_DIR="${DEPLOY_DIR:-/var/www/hopeco}"
 NODE_ENV="${NODE_ENV:-production}"
 NPM_BIN="${NPM_BIN:-npm}"
 RESTART_CMD="${RESTART_CMD:-}"
+FRONTEND_SERVICE_NAME="${FRONTEND_SERVICE_NAME:-hopeco-next}"
 NODE_VERSION_CHECK="${NODE_VERSION_CHECK:-node -e 'const parts = process.versions.node.split(\".\").map(Number); process.exit(parts[0] > 20 || (parts[0] === 20 && parts[1] >= 9) ? 0 : 1)' }"
 GRAPHQL_HEALTHCHECK_ATTEMPTS="${GRAPHQL_HEALTHCHECK_ATTEMPTS:-30}"
 GRAPHQL_HEALTHCHECK_DELAY="${GRAPHQL_HEALTHCHECK_DELAY:-2}"
@@ -128,8 +129,19 @@ wait_for_graphql() {
 
 restart_frontend() {
   if [ -z "$RESTART_CMD" ]; then
-    log "No RESTART_CMD configured; skipping frontend restart."
-    return
+    if command -v systemctl >/dev/null 2>&1; then
+      if systemctl list-unit-files "${FRONTEND_SERVICE_NAME}.service" >/dev/null 2>&1; then
+        RESTART_CMD="systemctl restart ${FRONTEND_SERVICE_NAME}"
+      elif [ -f "/etc/systemd/system/${FRONTEND_SERVICE_NAME}.service" ] || [ -f "/lib/systemd/system/${FRONTEND_SERVICE_NAME}.service" ]; then
+        RESTART_CMD="systemctl restart ${FRONTEND_SERVICE_NAME}"
+      else
+        log "No RESTART_CMD configured and ${FRONTEND_SERVICE_NAME}.service was not found; skipping frontend restart."
+        return
+      fi
+    else
+      log "No RESTART_CMD configured; skipping frontend restart."
+      return
+    fi
   fi
 
   run_in_deploy_dir sh -lc "$RESTART_CMD" ||
