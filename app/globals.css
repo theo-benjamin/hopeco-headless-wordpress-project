@@ -81,7 +81,8 @@ input {
 .shell,
 .editorial-shell,
 .design-shell {
-  width: min(100%, var(--container-page));
+  width: 100%;
+  max-width: var(--container-page);
   margin: 0 auto;
   padding: 28px 24px 80px;
 }
@@ -845,9 +846,34 @@ button {
 }
 
 .editorial-footer {
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 8px 0 0;
+}
+
+.editorial-footer::before {
+  display: none;
+}
+
+.editorial-footer .wp-block-group__inner-container {
+  padding-top: 34px;
+  border-top: 1px solid var(--color-border-strong);
+}
+
+.editorial-footer .wp-block-columns {
   display: grid;
-  grid-template-columns: 1.2fr 0.9fr 0.9fr 1.05fr;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.8fr) minmax(0, 0.8fr) minmax(0, 1fr);
   gap: 26px;
+  margin: 0;
+}
+
+.editorial-footer .wp-block-column {
+  flex-basis: auto !important;
+  margin: 0 !important;
+  min-width: 0;
 }
 
 .footer-brand,
@@ -1066,10 +1092,13 @@ button {
   .hero-layout,
   .impact-grid,
   .updates-grid,
-  .editorial-footer,
   .page-hero,
   .system-specimen-grid {
     grid-template-columns: 1fr;
+  }
+
+  .editorial-footer .wp-block-columns {
+    grid-template-columns: 1fr 1fr;
   }
 
   .editorial-nav {
@@ -1132,5 +1161,9 @@ button {
   .footer-legal-links,
   .hero-assurance-row {
     gap: 10px;
+  }
+
+  .editorial-footer .wp-block-columns {
+    grid-template-columns: 1fr;
   }
 }
