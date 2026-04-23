@@ -27,8 +27,8 @@ export default async function PageEntry({
   return (
     <main className="shell">
       <SiteHeader
-        title="Hopeco Headless Starter"
-        description="Example page rendered from WordPress page data and ACF fields."
+        title="Hopeco Headless"
+        description="Page rendered from WordPress page data and ACF fields."
       />
       <PageHero page={page} />
     </main>

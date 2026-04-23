@@ -73,6 +73,16 @@ ensure_plugin_from_url() {
   run_wp "wp plugin install '$plugin_url' --activate --allow-root" >/dev/null
 }
 
+reinstall_plugin_from_url() {
+  local plugin_slug="$1"
+  local plugin_url="$2"
+
+  echo "Reinstalling plugin from URL: $plugin_slug"
+  run_wp "wp plugin deactivate $plugin_slug --allow-root || true" >/dev/null
+  run_wp "wp plugin delete $plugin_slug --allow-root || true" >/dev/null
+  run_wp "wp plugin install '$plugin_url' --activate --allow-root" >/dev/null
+}
+
 seed_homepage_blocks() {
   local post_id="$1"
   run_wp 'CONTENT="$(cat /scripts/editorial-homepage-blocks.html)"; wp post update '"$post_id"' --post_content="$CONTENT" --allow-root' >/dev/null
@@ -166,17 +176,42 @@ verify_editor_blocks_support() {
 
   if printf '%s' "$response" | grep -q '"editorBlocks"'; then
     echo "Verified editorBlocks support at ${graphql_url}"
-    return
+    return 0
   fi
 
-  echo "Warning: WPGraphQL Content Blocks is active as a plugin but editorBlocks is not exposed in the schema."
+  echo "editorBlocks is not exposed in the schema."
   echo "GraphQL response: $response"
+  return 1
+}
+
+print_editor_blocks_debug() {
+  echo "Collecting WordPress and plugin debug information..."
+  run_wp 'wp plugin list --allow-root' || true
+  run_wp 'wp eval "echo \"WP \".get_bloginfo(\"version\").PHP_EOL; echo \"WPGraphQL \".(defined(\"WPGRAPHQL_VERSION\") ? WPGRAPHQL_VERSION : \"missing\").PHP_EOL; echo \"page editor: \".(post_type_supports(\"page\", \"editor\") ? \"on\" : \"off\").PHP_EOL;" --allow-root' || true
+}
+
+ensure_editor_blocks_support() {
+  if verify_editor_blocks_support; then
+    return 0
+  fi
+
+  print_editor_blocks_debug
+  reinstall_plugin_from_url wp-graphql-content-blocks "$CONTENT_BLOCKS_RELEASE_URL"
+
+  if verify_editor_blocks_support; then
+    echo "editorBlocks became available after reinstalling wp-graphql-content-blocks."
+    return 0
+  fi
+
+  echo "Warning: WPGraphQL Content Blocks is active as a plugin but editorBlocks is still not exposed in the schema after reinstall."
+  print_editor_blocks_debug
 
   if [[ "$STRICT_EDITOR_BLOCKS_SUPPORT" == "1" ]]; then
     exit 1
   fi
 
   echo "Continuing bootstrap because STRICT_EDITOR_BLOCKS_SUPPORT=${STRICT_EDITOR_BLOCKS_SUPPORT}."
+  return 0
 }
 
 seed_content() {
@@ -216,7 +251,7 @@ ensure_plugin wpgraphql-acf
 ensure_plugin_from_url wp-graphql-content-blocks "$CONTENT_BLOCKS_RELEASE_URL"
 configure_site
 seed_content
-verify_editor_blocks_support
+ensure_editor_blocks_support
 
 echo "WordPress bootstrap complete."
 echo "Admin URL: ${WORDPRESS_SITE_URL}/wp-admin"
