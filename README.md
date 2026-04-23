@@ -43,6 +43,8 @@ Next.js frontend + Dockerized WordPress + WPGraphQL + free ACF.
 - WordPress admin: `http://localhost:8080/wp-admin`
 - GraphQL endpoint: `http://localhost:8080/graphql`
 
+If port `8080` is already in use on your machine or server, change `WORDPRESS_HOST_PORT` in `.env.wordpress` and keep `WORDPRESS_SITE_URL` aligned with it.
+
 Default WordPress admin credentials come from `.env.wordpress`:
 
 - Username: `admin`

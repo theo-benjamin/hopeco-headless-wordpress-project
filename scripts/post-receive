@@ -1,6 +1,6 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
-set -Eeuo pipefail
+set -eu
 
 # Bare-repo post-receive hook for deploying this project after `git push`.
 #
@@ -21,6 +21,9 @@ DEPLOY_DIR="${DEPLOY_DIR:-/var/www/hopeco}"
 NODE_ENV="${NODE_ENV:-production}"
 NPM_BIN="${NPM_BIN:-npm}"
 RESTART_CMD="${RESTART_CMD:-}"
+NODE_VERSION_CHECK="${NODE_VERSION_CHECK:-node -e 'const parts = process.versions.node.split(\".\").map(Number); process.exit(parts[0] > 20 || (parts[0] === 20 && parts[1] >= 9) ? 0 : 1)' }"
+GRAPHQL_HEALTHCHECK_ATTEMPTS="${GRAPHQL_HEALTHCHECK_ATTEMPTS:-30}"
+GRAPHQL_HEALTHCHECK_DELAY="${GRAPHQL_HEALTHCHECK_DELAY:-2}"
 
 GIT_DIR="$(pwd)"
 LOG_PREFIX="[post-receive]"
@@ -36,63 +39,129 @@ fail() {
 
 run_in_deploy_dir() {
   (
-    cd "$DEPLOY_DIR"
+    cd "$DEPLOY_DIR" || exit 1
     "$@"
   )
 }
 
+load_env_file() {
+  env_file="$1"
+
+  if [ -f "$env_file" ]; then
+    set -a
+    # shellcheck disable=SC1090
+    . "$env_file"
+    set +a
+  fi
+}
+
 ensure_worktree() {
   mkdir -p "$DEPLOY_DIR"
-  git --work-tree="$DEPLOY_DIR" --git-dir="$GIT_DIR" checkout -f "$BRANCH_TO_DEPLOY"
+  git --work-tree="$DEPLOY_DIR" --git-dir="$GIT_DIR" checkout -f "$BRANCH_TO_DEPLOY" ||
+    fail "Git checkout failed."
+  git --work-tree="$DEPLOY_DIR" --git-dir="$GIT_DIR" clean -fdx \
+    -e .env.local \
+    -e .env.wordpress ||
+    fail "Git clean failed."
+}
+
+require_runtime() {
+  command -v "$NPM_BIN" >/dev/null 2>&1 || fail "npm is not installed."
+  command -v node >/dev/null 2>&1 || fail "node is not installed."
+
+  sh -c "$NODE_VERSION_CHECK" ||
+    fail "Node.js >= 20.9.0 is required for Next.js 16. Current version: $(node -v)"
 }
 
 install_dependencies() {
-  if [[ -f "$DEPLOY_DIR/package-lock.json" ]]; then
-    run_in_deploy_dir env NODE_ENV="$NODE_ENV" "$NPM_BIN" ci
+  if [ -f "$DEPLOY_DIR/package-lock.json" ]; then
+    run_in_deploy_dir env NODE_ENV="$NODE_ENV" "$NPM_BIN" ci ||
+      fail "npm ci failed."
   else
-    run_in_deploy_dir env NODE_ENV="$NODE_ENV" "$NPM_BIN" install
+    run_in_deploy_dir env NODE_ENV="$NODE_ENV" "$NPM_BIN" install ||
+      fail "npm install failed."
   fi
 }
 
 build_frontend() {
-  run_in_deploy_dir env NODE_ENV="$NODE_ENV" "$NPM_BIN" run build
+  run_in_deploy_dir env NODE_ENV="$NODE_ENV" "$NPM_BIN" run build ||
+    fail "Frontend build failed."
 }
 
 ensure_wordpress_stack() {
-  if [[ -f "$DEPLOY_DIR/docker-compose.yml" ]]; then
-    run_in_deploy_dir docker compose up -d mysql wordpress
+  if [ -f "$DEPLOY_DIR/docker-compose.yml" ]; then
+    load_env_file "$DEPLOY_DIR/.env.wordpress"
+    run_in_deploy_dir docker compose up -d mysql wordpress ||
+      fail "docker compose up failed."
   fi
 }
 
+wait_for_graphql() {
+  if [ ! -f "$DEPLOY_DIR/docker-compose.yml" ]; then
+    return
+  fi
+
+  command -v curl >/dev/null 2>&1 || fail "curl is required for GraphQL health checks."
+
+  load_env_file "$DEPLOY_DIR/.env.local"
+
+  if [ -z "${WORDPRESS_GRAPHQL_URL:-}" ]; then
+    fail "WORDPRESS_GRAPHQL_URL is not set in ${DEPLOY_DIR}/.env.local"
+  fi
+
+  attempt=1
+  while [ "$attempt" -le "$GRAPHQL_HEALTHCHECK_ATTEMPTS" ]; do
+    status_code="$(
+      curl -s -o /dev/null -w "%{http_code}" \
+        -H "Content-Type: application/json" \
+        --data '{"query":"{__typename}"}' \
+        "$WORDPRESS_GRAPHQL_URL" || true
+    )"
+
+    if [ "$status_code" = "200" ]; then
+      log "WordPress GraphQL is ready at ${WORDPRESS_GRAPHQL_URL}"
+      return
+    fi
+
+    sleep "$GRAPHQL_HEALTHCHECK_DELAY"
+    attempt=$((attempt + 1))
+  done
+
+  fail "WordPress GraphQL did not become ready at ${WORDPRESS_GRAPHQL_URL}"
+}
+
 restart_frontend() {
-  if [[ -z "$RESTART_CMD" ]]; then
+  if [ -z "$RESTART_CMD" ]; then
     log "No RESTART_CMD configured; skipping frontend restart."
     return
   fi
 
-  run_in_deploy_dir bash -lc "$RESTART_CMD"
+  run_in_deploy_dir sh -lc "$RESTART_CMD" ||
+    fail "Frontend restart command failed."
 }
 
 deploy() {
-  local oldrev="$1"
-  local newrev="$2"
-  local refname="$3"
+  oldrev="$1"
+  newrev="$2"
+  refname="$3"
 
-  if [[ "$refname" != "refs/heads/$BRANCH_TO_DEPLOY" ]]; then
+  if [ "$refname" != "refs/heads/$BRANCH_TO_DEPLOY" ]; then
     log "Ignoring push to ${refname}; waiting for refs/heads/${BRANCH_TO_DEPLOY}."
     return
   fi
 
-  if [[ "$newrev" == "0000000000000000000000000000000000000000" ]]; then
+  if [ "$newrev" = "0000000000000000000000000000000000000000" ]; then
     log "Branch ${BRANCH_TO_DEPLOY} was deleted; refusing to deploy deletion."
     return
   fi
 
   log "Deploying ${refname} to ${DEPLOY_DIR}"
   ensure_worktree
+  require_runtime
   install_dependencies
-  build_frontend
   ensure_wordpress_stack
+  wait_for_graphql
+  build_frontend
   restart_frontend
   log "Deployment complete."
 }
