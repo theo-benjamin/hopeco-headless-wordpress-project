@@ -1,4 +1,4 @@
-# Hopeco Headless WordPress Starter
+# Hopeco Headless WordPress
 
 Next.js frontend + Dockerized WordPress + WPGraphQL + Gutenberg blocks for section-based composition.
 
