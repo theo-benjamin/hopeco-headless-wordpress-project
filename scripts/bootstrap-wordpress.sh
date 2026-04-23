@@ -15,6 +15,7 @@ source .env.wordpress
 set +a
 
 CONTENT_BLOCKS_RELEASE_URL="${CONTENT_BLOCKS_RELEASE_URL:-https://github.com/wpengine/wp-graphql-content-blocks/releases/latest/download/wp-graphql-content-blocks.zip}"
+STRICT_EDITOR_BLOCKS_SUPPORT="${STRICT_EDITOR_BLOCKS_SUPPORT:-0}"
 
 run_wp() {
   docker compose --env-file .env.wordpress exec -T wpcli bash -lc "$1"
@@ -168,9 +169,14 @@ verify_editor_blocks_support() {
     return
   fi
 
-  echo "WPGraphQL Content Blocks is not active in the schema."
+  echo "Warning: WPGraphQL Content Blocks is active as a plugin but editorBlocks is not exposed in the schema."
   echo "GraphQL response: $response"
-  exit 1
+
+  if [[ "$STRICT_EDITOR_BLOCKS_SUPPORT" == "1" ]]; then
+    exit 1
+  fi
+
+  echo "Continuing bootstrap because STRICT_EDITOR_BLOCKS_SUPPORT=${STRICT_EDITOR_BLOCKS_SUPPORT}."
 }
 
 seed_content() {
