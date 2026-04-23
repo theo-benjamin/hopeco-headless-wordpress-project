@@ -2,20 +2,6 @@
 
 set -eu
 
-# Bare-repo post-receive hook for deploying this project after `git push`.
-#
-# Expected usage:
-# 1. Copy this file into the bare repo as `hooks/post-receive`
-# 2. Adjust the config block below for your server
-# 3. Push the configured branch to the bare repo
-#
-# This hook:
-# - deploys the pushed branch into a separate work tree
-# - installs Node dependencies
-# - builds the Next.js frontend
-# - ensures the WordPress/MySQL containers are running
-# - optionally restarts the frontend process via a custom command
-
 BRANCH_TO_DEPLOY="${BRANCH_TO_DEPLOY:-main}"
 DEPLOY_DIR="${DEPLOY_DIR:-/var/www/hopeco}"
 NODE_ENV="${NODE_ENV:-production}"

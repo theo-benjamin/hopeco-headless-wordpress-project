@@ -88,6 +88,12 @@ export type FooterContent = {
   termsLink: LinkItem;
 };
 
+export type HomePageBlock = {
+  id: string;
+  name: string;
+  renderedHtml: string;
+};
+
 export type PageContent = {
   id: string;
   slug: string;
@@ -113,10 +119,5 @@ export type PostContent = {
 export type HomePageData = {
   siteTitle: string;
   siteDescription: string;
-  header: HeaderContent;
-  hero: HeroContent;
-  pathways: PathwaysContent;
-  impact: ImpactContent;
-  updates: UpdatesContent;
-  footer: FooterContent;
+  blocks: HomePageBlock[];
 };

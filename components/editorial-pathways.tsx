@@ -38,11 +38,18 @@ export function EditorialPathways({ pathways }: EditorialPathwaysProps) {
       <div className="section-label">{pathways.eyebrow}</div>
       <div className="section-heading">
         <h2>{pathways.heading}</h2>
+        <p className="section-supporting">
+          Structured ways to engage with support, community, partnership, and
+          sustained giving.
+        </p>
       </div>
 
       <div className="pathways-grid">
         {pathways.cards.map((card, index) => (
-          <article className="pathway-card" key={`${card.title}-${index}`}>
+          <article
+            className={`pathway-card pathway-card-${(index % 2) + 1}`}
+            key={`${card.title}-${index}`}
+          >
             <div className="pathway-icon-wrap">
               <PathIcon index={index} />
             </div>
@@ -57,4 +64,3 @@ export function EditorialPathways({ pathways }: EditorialPathwaysProps) {
     </section>
   );
 }
-

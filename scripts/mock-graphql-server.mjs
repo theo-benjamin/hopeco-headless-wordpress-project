@@ -10,121 +10,44 @@ const homePageData = {
     id: "page-home",
     slug: "home",
     title: "Home",
-    editorialHomePage: {
-      headerNav: {
-        missionLabel: "Our Mission",
-        missionUrl: "#mission",
-        programsLabel: "Programs",
-        programsUrl: "#programs",
-        impactLabel: "Impact",
-        impactUrl: "#impact",
-        resourcesLabel: "Resources",
-        resourcesUrl: "#resources",
-        supportLabel: "Get Help Now",
-        supportUrl: "#programs",
-        donateLabel: "Donate Now",
-        donateUrl: "#programs",
+    editorBlocks: [
+      {
+        id: "home-block-header",
+        name: "core/group",
+        renderedHtml:
+          '<header class="site-header editorial-section block-site-header"><div class="editorial-header"><div class="brand-lockup"><p class="brand-overline">Institutional nonprofit newsroom</p><a class="brand-mark" href="/">The Editorial Advocate</a></div><ul class="editorial-nav-list"><li><a href="#mission">Our Mission</a></li><li><a href="#programs">Programs</a></li><li><a href="#impact">Impact</a></li><li><a href="#resources">Resources</a></li></ul><div class="editorial-header-actions"><a class="button button-secondary" href="#programs">Get Help Now</a><a class="button button-dark" href="#programs">Donate Now</a></div></div></header>',
       },
-      heroSection: {
-        eyebrow: "High contrast, ARIA labels, clear CTAs",
-        titleIntro: "Advocating for",
-        titleHighlight: "Human Dignity.",
-        description:
-          "We provide sanctuary, resources, and unwavering support to those navigating systemic crises. Your journey matters here.",
-        primaryCtaLabel: "Get Support",
-        primaryCtaUrl: "#programs",
-        secondaryCtaLabel: "Watch Our Story",
-        secondaryCtaUrl: "#impact",
-        mediaLabel: "Story video placeholder",
-        mediaUrl: "video_placeholder.mp4",
+      {
+        id: "home-block-hero",
+        name: "core/group",
+        renderedHtml:
+          '<section class="editorial-section editorial-hero" id="mission"><div class="section-label">Mission</div><div class="hero-layout"><div class="hero-copy"><p class="eyebrow">High contrast, ARIA labels, clear CTAs</p><h1 class="hero-title"><span class="hero-title-intro">Advocating for</span><span class="hero-title-highlight">Human Dignity.</span></h1><p class="hero-description">We provide sanctuary, resources, and unwavering support to those navigating systemic crises. Your journey matters here.</p><div class="hero-actions"><a class="button button-dark" href="#programs">Get Support</a><a class="button button-outline" href="#impact">Watch Our Story</a></div><ul class="hero-assurance-row"><li>Evidence-led</li><li>Human-centered</li><li>Accessible by default</li></ul></div><div class="hero-media"><div class="hero-media-frame"><div class="hero-media-play" aria-hidden="true"><span></span></div><p class="hero-media-kicker">Story video placeholder</p></div><p class="hero-media-caption">video_placeholder.mp4</p></div></div></section>',
       },
-      pathwaysSection: {
-        eyebrow: "Distinct blocks, logical tab order, keyboard focus",
-        heading: "Choose Your Path",
+      {
+        id: "home-block-pathways",
+        name: "core/group",
+        renderedHtml:
+          '<section class="editorial-section block-pathways" id="programs"><div class="section-label">Distinct blocks, logical tab order, keyboard focus</div><div class="section-heading"><h2>Choose Your Path</h2><p class="section-supporting">Structured ways to engage with support, community, partnership, and sustained giving.</p></div><div class="pathways-grid"><article class="pathway-card pathway-card-1"><div class="pathway-icon-wrap">↗</div><h3>Get Support</h3><p>Access immediate resources and safe spaces.</p><p class="text-link"><a href="#resources">Get Support</a></p></article><article class="pathway-card pathway-card-2"><div class="pathway-icon-wrap">✦</div><h3>Volunteer</h3><p>Join our network of advocates on the ground.</p><p class="text-link"><a href="#resources">Volunteer</a></p></article><article class="pathway-card pathway-card-1"><div class="pathway-icon-wrap">●</div><h3>Partner</h3><p>Collaborate with us to expand our reach.</p><p class="text-link"><a href="#resources">Partner</a></p></article><article class="pathway-card pathway-card-2"><div class="pathway-icon-wrap">◎</div><h3>Donate</h3><p>Fund the mission. Every contribution matters.</p><p class="text-link"><a href="#resources">Donate</a></p></article></div></section>',
       },
-      pathCardOne: {
-        title: "Get Support",
-        description: "Access immediate resources and safe spaces.",
-        label: "Get Support",
-        url: "#resources",
+      {
+        id: "home-block-impact",
+        name: "core/group",
+        renderedHtml:
+          '<section class="editorial-section block-impact" id="impact"><div class="section-label">Screen reader friendly metrics + personal story</div><div class="impact-grid"><div class="impact-metrics-panel"><div class="section-heading"><h2>Our Impact</h2><p class="section-supporting">Measured outcomes paired with testimony from the people this work is designed to serve.</p></div><ul class="impact-metrics-list"><li class="impact-metric"><span class="impact-value">10,000+</span><span class="impact-label">Families Supported</span></li><li class="impact-metric"><span class="impact-value">50</span><span class="impact-label">Sanctuaries Built</span></li><li class="impact-metric"><span class="impact-value">$2.5M</span><span class="impact-label">In Direct Aid</span></li></ul></div><div class="impact-story-panel"><article class="impact-story-card"><p class="impact-story-quote-mark">“</p><blockquote>The sanctuary wasn’t just a roof. It was the first time in months I felt seen.</blockquote><div class="impact-story-person"><div class="impact-story-avatar impact-story-avatar-fallback">IMG</div><div><p class="impact-story-name">Maria V.</p><p class="impact-story-role">Program Participant</p></div></div></article></div></div></section>',
       },
-      pathCardTwo: {
-        title: "Volunteer",
-        description: "Join our network of advocates on the ground.",
-        label: "Volunteer",
-        url: "#resources",
+      {
+        id: "home-block-updates",
+        name: "core/group",
+        renderedHtml:
+          '<section class="editorial-section block-updates" id="resources"><div class="section-label">Feed + Newsletter Opt-in</div><div class="updates-grid"><div class="updates-feed"><div class="updates-header"><div class="section-heading"><h2>Latest Updates</h2><p class="section-supporting">Timely reporting, public-interest programming, and calls to stay informed.</p></div><p class="updates-view-all"><a href="/updates">View All</a></p></div><ul class="updates-list"><li class="update-row"><div class="update-thumb" aria-hidden="true"></div><div class="update-copy"><p class="update-meta">EVENT · Oct 12</p><h3><a href="/posts/annual-community-town-hall">Annual Community Town Hall</a></h3><p>Join us for an open discussion on the upcoming policy changes affecting our neighborhoods.</p></div></li><li class="update-row"><div class="update-thumb" aria-hidden="true"></div><div class="update-copy"><p class="update-meta">NEWS · Sep 28</p><h3><a href="/posts/new-sanctuary-opened-in-westside">New Sanctuary Opened in Westside</a></h3><p>We are thrilled to announce the opening of our newest facility providing emergency housing.</p></div></li></ul></div><aside class="newsletter-card"><p class="eyebrow">Newsletter</p><h3>Stay Informed</h3><p>Subscribe to our newsletter for crucial updates and stories from the field.</p><form action="#" class="newsletter-form"><label class="sr-only" for="newsletter-email">Email address</label><input class="newsletter-input" id="newsletter-email" name="email" placeholder="Email Address" type="email" /><button class="button button-dark newsletter-button" type="submit">Subscribe</button></form><p class="newsletter-note">We respect your privacy. Unsubscribe anytime.</p><p class="newsletter-secondary-action"><a class="button button-secondary" href="/updates">Review latest coverage</a></p></aside></div></section>',
       },
-      pathCardThree: {
-        title: "Partner",
-        description: "Collaborate with us to expand our reach.",
-        label: "Partner",
-        url: "#resources",
+      {
+        id: "home-block-footer",
+        name: "core/group",
+        renderedHtml:
+          '<footer class="editorial-footer editorial-section" id="footer"><div class="footer-brand"><p class="eyebrow">Editorial Advocate</p><h2>The Editorial Advocate</h2><p>Building a digital sanctuary for those navigating systemic crises.</p></div><div class="footer-column"><p class="footer-heading">Organization</p><div class="footer-links"><a href="#mission">Our Mission</a><a href="#programs">Programs</a><a href="#impact">Impact</a><a href="#resources">Careers</a></div></div><div class="footer-column"><p class="footer-heading">Support</p><div class="footer-links"><a href="#programs">Get Help Now</a><a href="#resources">Resources</a><a href="#footer">Contact Us</a><a href="#programs">Donate</a></div></div><div class="footer-column footer-accessibility"><p class="footer-heading">Accessibility</p><p>We are committed to ensuring digital accessibility for people with disabilities. We are continually improving the user experience for everyone.</p><p class="footer-statement-link"><a href="#footer">Read our Statement</a></p><p class="footer-legal">© 2024 The Editorial Advocate. Designed for Sanctuary.</p><div class="footer-legal-links"><a href="#footer">Privacy Policy</a><a href="#footer">Terms of Service</a></div></div></footer>',
       },
-      pathCardFour: {
-        title: "Donate",
-        description: "Fund the mission. Every contribution matters.",
-        label: "Donate",
-        url: "#resources",
-      },
-      impactSection: {
-        eyebrow: "Screen reader friendly metrics + personal story",
-        heading: "Our Impact",
-        metricOneValue: "10,000+",
-        metricOneLabel: "Families Supported",
-        metricTwoValue: "50",
-        metricTwoLabel: "Sanctuaries Built",
-        metricThreeValue: "$2.5M",
-        metricThreeLabel: "In Direct Aid",
-        storyQuote:
-          "The sanctuary wasn’t just a roof. It was the first time in months I felt seen.",
-        storyName: "Maria V.",
-        storyRole: "Program Participant",
-        storyImage: null,
-      },
-      updatesSection: {
-        eyebrow: "Feed + Newsletter Opt-in",
-        heading: "Latest Updates",
-        viewAllLabel: "View All",
-        viewAllUrl: "/updates",
-        newsletterHeading: "Stay Informed",
-        newsletterDescription:
-          "Subscribe to our newsletter for crucial updates and stories from the field.",
-        newsletterPlaceholder: "Email Address",
-        newsletterButtonLabel: "Subscribe",
-        newsletterDisclaimer: "We respect your privacy. Unsubscribe anytime.",
-      },
-      footerSection: {
-        blurb: "Building a digital sanctuary for those navigating systemic crises.",
-        organizationHeading: "Organization",
-        organizationLinkOneLabel: "Our Mission",
-        organizationLinkOneUrl: "#mission",
-        organizationLinkTwoLabel: "Programs",
-        organizationLinkTwoUrl: "#programs",
-        organizationLinkThreeLabel: "Impact",
-        organizationLinkThreeUrl: "#impact",
-        organizationLinkFourLabel: "Careers",
-        organizationLinkFourUrl: "#resources",
-        supportHeading: "Support",
-        supportLinkOneLabel: "Get Help Now",
-        supportLinkOneUrl: "#programs",
-        supportLinkTwoLabel: "Resources",
-        supportLinkTwoUrl: "#resources",
-        supportLinkThreeLabel: "Contact Us",
-        supportLinkThreeUrl: "#footer",
-        supportLinkFourLabel: "Donate",
-        supportLinkFourUrl: "#programs",
-        accessibilityHeading: "Accessibility",
-        accessibilityText:
-          "We are committed to ensuring digital accessibility for people with disabilities. We are continually improving the user experience for everyone.",
-        accessibilityLinkLabel: "Read our Statement",
-        accessibilityLinkUrl: "#footer",
-        legalText: "© 2024 The Editorial Advocate. Designed for Sanctuary.",
-        privacyLabel: "Privacy Policy",
-        privacyUrl: "#footer",
-        termsLabel: "Terms of Service",
-        termsUrl: "#footer",
-      },
-    },
+    ],
   },
   posts: {
     nodes: [

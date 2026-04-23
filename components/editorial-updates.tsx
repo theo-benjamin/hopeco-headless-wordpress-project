@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { ButtonLink } from "@/components/button-link";
 import type { UpdatesContent } from "@/lib/types";
 import { formatDateShort, stripHtml } from "@/lib/utils";
 
@@ -15,7 +16,13 @@ export function EditorialUpdates({ updates }: EditorialUpdatesProps) {
       <div className="updates-grid">
         <div className="updates-feed">
           <div className="updates-header">
-            <h2>{updates.heading}</h2>
+            <div className="section-heading">
+              <h2>{updates.heading}</h2>
+              <p className="section-supporting">
+                Timely reporting, public-interest programming, and calls to stay
+                informed.
+              </p>
+            </div>
             <Link className="updates-view-all" href={updates.viewAll.url}>
               {updates.viewAll.label}
             </Link>
@@ -40,6 +47,7 @@ export function EditorialUpdates({ updates }: EditorialUpdatesProps) {
         </div>
 
         <aside className="newsletter-card">
+          <p className="eyebrow">Newsletter</p>
           <h3>{updates.newsletterHeading}</h3>
           <p>{updates.newsletterDescription}</p>
 
@@ -60,9 +68,11 @@ export function EditorialUpdates({ updates }: EditorialUpdatesProps) {
           </form>
 
           <p className="newsletter-note">{updates.newsletterDisclaimer}</p>
+          <ButtonLink className="newsletter-secondary-action" href={updates.viewAll.url} variant="secondary">
+            Review latest coverage
+          </ButtonLink>
         </aside>
       </div>
     </section>
   );
 }
-

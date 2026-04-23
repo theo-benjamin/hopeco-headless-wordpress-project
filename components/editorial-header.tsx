@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { ButtonLink } from "@/components/button-link";
 import type { HeaderContent } from "@/lib/types";
 
 type EditorialHeaderProps = {
@@ -13,27 +14,29 @@ export function EditorialHeader({
 }: EditorialHeaderProps) {
   return (
     <header className="editorial-header" aria-label="Primary">
-      <Link className="brand-mark" href="/">
-        {siteTitle}
-      </Link>
+      <div className="brand-lockup">
+        <p className="brand-overline">Institutional nonprofit newsroom</p>
+        <Link className="brand-mark" href="/">
+          {siteTitle}
+        </Link>
+      </div>
 
       <nav className="editorial-nav" aria-label="Section navigation">
         {header.links.map((link) => (
-          <Link key={`${link.label}-${link.url}`} href={link.url}>
+          <Link className="editorial-nav-link" key={`${link.label}-${link.url}`} href={link.url}>
             {link.label}
           </Link>
         ))}
       </nav>
 
       <div className="editorial-header-actions">
-        <Link className="button button-secondary" href={header.supportCta.url}>
+        <ButtonLink href={header.supportCta.url} variant="secondary">
           {header.supportCta.label}
-        </Link>
-        <Link className="button button-dark" href={header.donateCta.url}>
+        </ButtonLink>
+        <ButtonLink href={header.donateCta.url} variant="dark">
           {header.donateCta.label}
-        </Link>
+        </ButtonLink>
       </div>
     </header>
   );
 }
-

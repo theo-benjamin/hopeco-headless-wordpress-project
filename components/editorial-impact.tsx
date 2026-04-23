@@ -15,6 +15,10 @@ export function EditorialImpact({ impact }: EditorialImpactProps) {
         <div className="impact-metrics-panel">
           <div className="section-heading">
             <h2>{impact.heading}</h2>
+            <p className="section-supporting">
+              Measured outcomes paired with testimony from the people this work
+              is designed to serve.
+            </p>
           </div>
 
           <div className="impact-metrics-list" aria-label="Impact metrics">
@@ -60,4 +64,3 @@ export function EditorialImpact({ impact }: EditorialImpactProps) {
     </section>
   );
 }
-

@@ -10,7 +10,7 @@ export default async function UpdatesPage() {
 
   return (
     <main className="shell">
-      <section className="article">
+      <section className="article article-intro">
         <p className="eyebrow">Editorial Feed</p>
         <h1>Latest Updates</h1>
         <p className="lede">

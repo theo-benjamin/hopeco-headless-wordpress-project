@@ -14,6 +14,7 @@ export function EditorialFooter({
   return (
     <footer className="editorial-footer editorial-section" id="footer">
       <div className="footer-brand">
+        <p className="eyebrow">Editorial Advocate</p>
         <h2>{siteTitle}</h2>
         <p>{footer.blurb}</p>
         <div className="footer-socials" aria-label="Social links">
@@ -59,4 +60,3 @@ export function EditorialFooter({
     </footer>
   );
 }
-

@@ -1,6 +1,6 @@
 # Hopeco Headless WordPress Starter
 
-Next.js frontend + Dockerized WordPress + WPGraphQL + free ACF.
+Next.js frontend + Dockerized WordPress + WPGraphQL + Gutenberg blocks for section-based composition.
 
 ## Stack
 
@@ -9,6 +9,7 @@ Next.js frontend + Dockerized WordPress + WPGraphQL + free ACF.
 - `WPGraphQL`
 - `Advanced Custom Fields`
 - `WPGraphQL for ACF`
+- `WPGraphQL Content Blocks`
 
 ## Local Setup
 
@@ -65,13 +66,21 @@ The repo ships a small MU plugin at `wordpress/wp-content/mu-plugins/hopeco-head
 It registers:
 
 - `pageHero` for regular pages
-- `editorialHomePage` for the front page, with section groups for:
-  - header navigation
-  - hero
-  - pathways cards
-  - impact metrics + story
-  - updates/newsletter
-  - footer links + accessibility copy
+
+The homepage itself is now managed in the native WordPress block editor and queried via `editorBlocks` from `WPGraphQL Content Blocks`.
+
+The seeded front page is built from Gutenberg blocks:
+
+- group
+- columns
+- heading
+- paragraph
+- list
+- buttons
+- latest posts
+- small HTML fragments where core blocks are not enough
+
+This means editors can reorder, duplicate, and edit homepage sections directly in Gutenberg without ACF Pro.
 
 The homepage feed pulls the latest WordPress posts over GraphQL, and `/updates` renders a simple archive view.
 

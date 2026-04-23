@@ -1,11 +1,3 @@
-.DS_Store
-.next
+/docs
 node_modules
-npm-debug.log*
-
-.env.local
-.env*.local
-
-wordpress-data
-mysql-data
-
+.next/*

@@ -16,8 +16,9 @@ const bodyFont = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "Hopeco Headless Starter",
-  description: "Headless WordPress starter with Next.js, GraphQL, and ACF.",
+  title: "The Editorial Advocate",
+  description:
+    "Institutional nonprofit editorial system built with Next.js, WordPress, GraphQL, and ACF.",
 };
 
 export default function RootLayout({
@@ -33,4 +34,3 @@ export default function RootLayout({
     </html>
   );
 }
-
