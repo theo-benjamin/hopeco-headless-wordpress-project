@@ -105,3 +105,5 @@ npm run build
 A bare-repo `post-receive` deployment hook template is included at `scripts/post-receive`.
 
 Setup notes are in `docs/deploy-hook.md`.
+
+For production process management, a `systemd` unit template for the Next.js app is included at `docs/systemd/hopeco-next.service`.

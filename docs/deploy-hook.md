@@ -61,3 +61,4 @@ On pushes to the configured branch, the hook:
 - The bootstrap script is idempotent, so the hook can run it on every deploy to keep WordPress core/plugins initialized.
 - If the server already uses port `8080`, set `WORDPRESS_HOST_PORT` in `.env.wordpress` to a free port and update `.env.local` so `WORDPRESS_GRAPHQL_URL` matches it.
 - If the site is behind Cloudflare, use `Full` or `Full (strict)` SSL mode, not `Flexible`, or you can get HTTPS redirect loops.
+- If port `3000` is already occupied on the server, run the Next.js app on another local port such as `3001` and keep the Nginx upstream aligned with it.
