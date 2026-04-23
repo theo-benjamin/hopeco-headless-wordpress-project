@@ -7,10 +7,6 @@ export default function NotFound() {
         <div>
           <p className="eyebrow">404</p>
           <h1>That entry does not exist.</h1>
-          <p className="lede">
-            The slug is not published in WordPress, or static params have not
-            revalidated yet.
-          </p>
         </div>
         <Link className="button button-primary" href="/">
           Back home
@@ -19,4 +15,3 @@ export default function NotFound() {
     </main>
   );
 }
-

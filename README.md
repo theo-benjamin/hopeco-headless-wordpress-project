@@ -82,6 +82,16 @@ The seeded front page is built from Gutenberg blocks:
 
 This means editors can reorder, duplicate, and edit homepage sections directly in Gutenberg without ACF Pro.
 
+## Reseed The Home Page
+
+If WordPress content drifts or the home page needs to be overwritten with the repo's styled Gutenberg seed again, run:
+
+```bash
+bash scripts/seed-homepage.sh
+```
+
+This updates the `home` page content from `scripts/editorial-homepage-blocks.html` and reassigns it as the static front page.
+
 The homepage feed pulls the latest WordPress posts over GraphQL, and `/updates` renders a simple archive view.
 
 The page field group exposed in GraphQL as `pageHero` includes:

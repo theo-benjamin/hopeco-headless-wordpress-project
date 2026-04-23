@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
+
 import { getRevalidateSeconds, getWordPressGraphqlUrl } from "@/lib/env";
 import {
   HOME_PAGE_FALLBACK_QUERY,
@@ -155,6 +158,27 @@ async function fetchWordPress<T>(
 }
 
 function getFallbackHomeBlocks() {
+  let seededMarkup = "";
+
+  try {
+    seededMarkup = readFileSync(
+      path.join(process.cwd(), "scripts", "editorial-homepage-blocks.html"),
+      "utf8",
+    );
+  } catch {
+    seededMarkup = "";
+  }
+
+  if (seededMarkup.trim()) {
+    return [
+      {
+        id: "fallback-seeded-homepage",
+        name: "core/post-content",
+        renderedHtml: seededMarkup,
+      },
+    ];
+  }
+
   return [
     {
       id: "fallback-header",
@@ -195,16 +219,24 @@ export async function fetchHomePageData(): Promise<HomePageData> {
       throw new Error('Expected a published "home" page at /home/.');
     }
 
+    const content = fallbackData.nodeByUri.content || "";
+    const looksLikeStyledSeed =
+      content.includes("block-site-header") ||
+      content.includes("hero-layout") ||
+      content.includes("newsletter-card");
+
     return {
       siteTitle: fallbackData.generalSettings.title,
       siteDescription: fallbackData.generalSettings.description,
-      blocks: [
-        {
-          id: "home-content-fallback",
-          name: "core/post-content",
-          renderedHtml: fallbackData.nodeByUri.content || "",
-        },
-      ],
+      blocks: looksLikeStyledSeed
+        ? [
+            {
+              id: "home-content-fallback",
+              name: "core/post-content",
+              renderedHtml: content,
+            },
+          ]
+        : getFallbackHomeBlocks(),
     };
   }
 

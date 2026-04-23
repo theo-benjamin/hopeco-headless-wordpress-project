@@ -14,6 +14,8 @@ set -a
 source .env.wordpress
 set +a
 
+CONTENT_BLOCKS_RELEASE_URL="${CONTENT_BLOCKS_RELEASE_URL:-https://github.com/wpengine/wp-graphql-content-blocks/releases/latest/download/wp-graphql-content-blocks.zip}"
+
 run_wp() {
   docker compose --env-file .env.wordpress exec -T wpcli bash -lc "$1"
 }
@@ -144,6 +146,33 @@ configure_site() {
   run_wp "wp option update blogdescription 'Building a digital sanctuary for those navigating systemic crises.' --allow-root" >/dev/null
 }
 
+verify_editor_blocks_support() {
+  local graphql_url
+  local response
+
+  command -v curl >/dev/null 2>&1 || {
+    echo "curl is required to verify editorBlocks support."
+    exit 1
+  }
+
+  graphql_url="http://${WORDPRESS_HOST_BIND:-127.0.0.1}:${WORDPRESS_HOST_PORT:-8080}/graphql"
+  response="$(
+    curl -s \
+      -H "Content-Type: application/json" \
+      --data '{"query":"{ __type(name: \"Page\") { fields { name } } }"}' \
+      "$graphql_url"
+  )"
+
+  if printf '%s' "$response" | grep -q '"name":"editorBlocks"'; then
+    echo "Verified editorBlocks support at ${graphql_url}"
+    return
+  fi
+
+  echo "WPGraphQL Content Blocks is not active in the schema."
+  echo "GraphQL response: $response"
+  exit 1
+}
+
 seed_content() {
   local home_id
   local about_id
@@ -178,9 +207,10 @@ ensure_wordpress
 ensure_plugin advanced-custom-fields
 ensure_plugin wp-graphql
 ensure_plugin wpgraphql-acf
-ensure_plugin_from_url wp-graphql-content-blocks "https://github.com/wpengine/wp-graphql-content-blocks/archive/refs/tags/v4.8.4.zip"
+ensure_plugin_from_url wp-graphql-content-blocks "$CONTENT_BLOCKS_RELEASE_URL"
 configure_site
 seed_content
+verify_editor_blocks_support
 
 echo "WordPress bootstrap complete."
 echo "Admin URL: ${WORDPRESS_SITE_URL}/wp-admin"
