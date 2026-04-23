@@ -159,11 +159,11 @@ verify_editor_blocks_support() {
   response="$(
     curl -s \
       -H "Content-Type: application/json" \
-      --data '{"query":"{ __type(name: \"Page\") { fields { name } } }"}' \
+      --data '{"query":"query VerifyEditorBlocks { nodeByUri(uri: \"/home/\") { __typename ... on Page { editorBlocks(flat: false) { id name } } } }"}' \
       "$graphql_url"
   )"
 
-  if printf '%s' "$response" | grep -q '"name":"editorBlocks"'; then
+  if printf '%s' "$response" | grep -q '"editorBlocks"'; then
     echo "Verified editorBlocks support at ${graphql_url}"
     return
   fi
