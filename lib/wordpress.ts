@@ -29,7 +29,6 @@ type HomePageQueryData = {
     slug: string;
     title: string;
     editorBlocks: Array<{
-      id: string | null;
       name: string | null;
       renderedHtml: string | null;
     }> | null;
@@ -252,7 +251,7 @@ export async function fetchHomePageData(): Promise<HomePageData> {
     data.nodeByUri.editorBlocks
       ?.filter((block) => Boolean(block.renderedHtml))
       .map((block, index) => ({
-        id: block.id || `home-block-${index}`,
+        id: `home-block-${index}`,
         name: block.name || "core/html",
         renderedHtml: block.renderedHtml || "",
       })) ?? [];

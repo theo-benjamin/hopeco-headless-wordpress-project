@@ -11,7 +11,6 @@ export const HOME_PAGE_QUERY = /* GraphQL */ `
         slug
         title
         editorBlocks(flat: false) {
-          id
           name
           renderedHtml
         }
